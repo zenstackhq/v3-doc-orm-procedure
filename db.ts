@@ -4,17 +4,38 @@ import initSqlJs from 'sql.js';
 import { schema } from './zenstack/schema';
 
 export async function createClient() {
-    // initialize sql.js engine
-    const SQL = await initSqlJs();
+  // initialize sql.js engine
+  const SQL = await initSqlJs();
 
-    // create database client with sql.js dialect
-    const db = new ZenStackClient(schema, {
-        dialect: new SqlJsDialect({ sqlJs: new SQL.Database() }),
-    });
+  // create database client with sql.js dialect
+  const db = new ZenStackClient(schema, {
+    dialect: new SqlJsDialect({ sqlJs: new SQL.Database() }),
+    procedures: {
+      getUserFeeds: ({ client, args }) => {
+        return client.post.findMany({
+          where: { authorId: args.userId },
+          orderBy: { createdAt: 'desc' },
+          take: args.limit
+        });
+      },
 
-    // push schema to the database
-    // the `$pushSchema` API is for testing purposes only
-    await db.$pushSchema();
+      signUp: ({ client, args }) => {
+        // create a new user with a welcome post
+        return client.user.create({
+          data: {
+            email: args.email,
+            posts: {
+              create: { title: 'Welcome Post', published: true }
+            }
+          }
+        });
+      }
+    }
+  });
 
-    return db;
+  // push schema to the database
+  // the `$pushSchema` API is for testing purposes only
+  await db.$pushSchema();
+
+  return db;
 }

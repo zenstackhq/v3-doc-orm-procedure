@@ -66,24 +66,6 @@ export class SchemaType implements SchemaDef {
                     name: "title",
                     type: "String"
                 },
-                content: {
-                    name: "content",
-                    type: "String",
-                    optional: true
-                },
-                slug: {
-                    name: "slug",
-                    type: "String",
-                    unique: true,
-                    optional: true,
-                    attributes: [{ name: "@unique" }]
-                },
-                viewCount: {
-                    name: "viewCount",
-                    type: "Int",
-                    attributes: [{ name: "@default", args: [{ name: "value", value: ExpressionUtils.literal(0) }] }],
-                    default: 0
-                },
                 published: {
                     name: "published",
                     type: "Boolean",
@@ -108,12 +90,28 @@ export class SchemaType implements SchemaDef {
             },
             idFields: ["id"],
             uniqueFields: {
-                id: { type: "Int" },
-                slug: { type: "String" }
+                id: { type: "Int" }
             }
         }
     } as const;
     authType = "User" as const;
+    procedures = {
+        getUserFeeds: {
+            params: {
+                userId: { name: "userId", type: "Int" },
+                limit: { name: "limit", optional: true, type: "Int" }
+            },
+            returnType: "Post",
+            returnArray: true
+        },
+        signUp: {
+            params: {
+                email: { name: "email", type: "String" }
+            },
+            returnType: "User",
+            mutation: true
+        }
+    } as const;
     plugins = {};
 }
 export const schema = new SchemaType();

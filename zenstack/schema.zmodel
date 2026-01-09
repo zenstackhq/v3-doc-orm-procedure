@@ -6,9 +6,9 @@ datasource db {
 
 /// User model
 model User {
-    id       Int    @id @default(autoincrement())
-    email    String @unique
-    posts    Post[]
+    id    Int    @id @default(autoincrement())
+    email String @unique
+    posts Post[]
 }
 
 /// Post model
@@ -17,10 +17,13 @@ model Post {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     title     String
-    content   String?
-    slug      String?  @unique
-    viewCount Int      @default(0)
     published Boolean  @default(false)
     author    User?    @relation(fields: [authorId], references: [id])
     authorId  Int?
 }
+
+// get blog post feeds for a given user
+procedure getUserFeeds(userId: Int, limit: Int?) : Post[] 
+
+// sign up a new user
+mutation procedure signUp(email: String) : User
